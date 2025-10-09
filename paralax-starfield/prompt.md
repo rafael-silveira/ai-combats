@@ -1,0 +1,1 @@
+quero criar uma animacao, estrelas simulando um scroll paralax (como nos jogos dos anos 80 e 90, 16 bits), apenas em html, css e js. O fundo pode ser preto, e as estrelas em tons de branco.
