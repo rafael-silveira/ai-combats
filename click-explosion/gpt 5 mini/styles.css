@@ -1,0 +1,66 @@
+:root{
+  --bg: #0b0f12;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(ellipse at 10% 10%, #111417 0%, var(--bg) 40%), var(--bg);
+  color:#fff;
+  overflow:hidden;
+}
+main{
+  position:relative;
+  z-index:1;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  pointer-events:none; /* let clicks pass through to body */
+}
+h1{font-size:clamp(1.2rem, 3vw, 2.2rem); margin:0}
+p{margin:0; opacity:.9}
+
+/* container for explosions (full viewport) */
+.explosion-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none; /* just visual */
+}
+
+/* particle base */
+.particle{
+  position:absolute;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  transform-origin:center center;
+  will-change:transform, opacity, filter;
+}
+
+/* inner glow core */
+.core{
+  filter: blur(6px) saturate(140%);
+  mix-blend-mode:screen;
+}
+
+/* radial shock circle */
+.shock{
+  position:absolute;
+  border-radius:50%;
+  border:2px solid rgba(255,180,60,0.9);
+  width:20px;
+  height:20px;
+  transform:translate(-50%,-50%) scale(.2);
+  opacity:0.95;
+  pointer-events:none;
+}
+
+/* small optimization for mobile */
+@media (prefers-reduced-motion: reduce){
+  .particle, .shock{transition:none; animation:none}
+}

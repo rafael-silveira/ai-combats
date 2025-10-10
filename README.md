@@ -55,6 +55,27 @@ Efeito visual de campo de estrelas com paralaxe, implementado por diferentes mod
 
 ---
 
+### Click Explosion
+
+Efeito visual interativo que gera explosões/partículas ao clicar na tela. Implementações por diferentes modelos de IA.
+
+#### Implementações:
+
+- **[Claude Sonnet 4.5](./click-explosion/claude%20sonnet%204.5/index.html)**
+  - Implementação usando Claude Sonnet 4.5
+
+- **[GPT 4.1](./click-explosion/gpt%204.1/index.html)**
+  - Implementação usando GPT 4.1
+
+- **[GPT 5 Codex](./click-explosion/gpt%205%20codex/index.html)**
+  - Implementação usando GPT 5 Codex
+
+- **[GPT 5 Mini](./click-explosion/gpt%205%20mini/index.html)**
+  - Implementação usando GPT 5 Mini
+
+- **[Grok Code Fast 1](./click-explosion/grok%20code%20fast%201/index.html)**
+  - Implementação usando Grok Code Fast 1
+
 ## 📝 Notas
 
 - Todos os projetos são independentes e podem ser executados separadamente
