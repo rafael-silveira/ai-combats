@@ -53,6 +53,9 @@ Efeito visual de campo de estrelas com paralaxe, implementado por diferentes mod
 - **[Grok Code Fast 1](./paralax-starfield/grok%20code%20fast%201/index.html)**
   - Implementação usando Grok Code Fast 1
 
+- **[Copilot Swe](./paralax-starfield/copilot%20swe/index.html)**
+  - Implementação usando Copilot Swe
+
 ---
 
 ### Click Explosion
@@ -75,6 +78,9 @@ Efeito visual interativo que gera explosões/partículas ao clicar na tela. Impl
 
 - **[Grok Code Fast 1](./click-explosion/grok%20code%20fast%201/index.html)**
   - Implementação usando Grok Code Fast 1
+
+- **[Copilot Swe](./click-explosion/copilot%20swe/index.html)**
+  - Implementação usando Copilot Swe
 
 ## 📝 Notas
 

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parallax Starfield</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="ui">
+    <label>Velocidade: <input id="speed" type="range" min="0" max="3" step="0.01" value="1"></label>
+    <label>Densidade: <input id="density" type="range" min="0.2" max="2" step="0.1" value="1"></label>
+    <label>Direção: 
+      <select id="direction">
+        <option value="down" selected>Para baixo</option>
+        <option value="up">Para cima</option>
+      </select>
+    </label>
+    <button id="toggle">Pausar</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
