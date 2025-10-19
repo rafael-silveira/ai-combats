@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Estrela Girando com Bolas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #0c1630 0%, #03050e 80%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: #f8f9ff;
+    }
+
+    #scene {
+      width: min(90vmin, 820px);
+      height: min(90vmin, 820px);
+      border-radius: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.65);
+      background: transparent;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="hint">Estrela em rotação com 10 bolas físicas</div>
+  <script>
+    (function() {
+      const canvas = document.getElementById('scene');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const TWO_PI = Math.PI * 2;
+
+      const center = { x: 0, y: 0 };
+      const star = {
+        points: 5,
+        outerRadius: 320,
+        rotation: 0,
+        rotationSpeed: Math.PI / 14
+      };
+
+      const gravity = 900; // px/s^2
+      const airDrag = 0.998;
+      const restitution = 0.84;
+      const balls = [];
+      const ballCount = 10;
+      const palette = ['#ffd166', '#ef476f', '#06d6a0', '#8eecf5', '#c77dff', '#ff9f1c'];
+
+      let logicalSize = 600;
+      let lastTime = performance.now();
+
+      function normalizeAngle(angle) {
+        return ((angle % TWO_PI) + TWO_PI) % TWO_PI;
+      }
+
+      function getRadius(theta) {
+        return star.outerRadius * (0.62 + 0.38 * Math.cos(star.points * theta));
+      }
+
+      function getRadiusDerivative(theta) {
+        return star.outerRadius * (0.38 * -star.points * Math.sin(star.points * theta));
+      }
+
+      function resize() {
+        const maxSize = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+        logicalSize = Math.max(460, Math.min(maxSize, 820));
+        canvas.style.width = logicalSize + 'px';
+        canvas.style.height = logicalSize + 'px';
+        canvas.width = logicalSize * dpr;
+        canvas.height = logicalSize * dpr;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+
+        center.x = logicalSize / 2;
+        center.y = logicalSize / 2;
+        star.outerRadius = logicalSize * 0.42;
+
+        spawnBalls();
+      }
+
+      function spawnBalls() {
+        balls.length = 0;
+        let attempts = 0;
+        while (balls.length < ballCount && attempts < 6000) {
+          attempts++;
+          const radius = 14 + Math.random() * 10;
+          const theta = Math.random() * TWO_PI;
+          const maxRadius = getRadius(theta) - radius * 2.4;
+          if (maxRadius <= 0) {
+            continue;
+          }
+          const radialFactor = Math.pow(Math.random(), 0.45);
+          const distance = radialFactor * maxRadius;
+          const angleWorld = theta + star.rotation;
+          const x = center.x + distance * Math.cos(angleWorld);
+          const y = center.y + distance * Math.sin(angleWorld);
+
+          let valid = true;
+          for (const other of balls) {
+            const dist = Math.hypot(other.x - x, other.y - y);
+            if (dist < other.radius + radius + 4) {
+              valid = false;
+              break;
+            }
+          }
+
+          if (!valid) {
+            continue;
+          }
+
+          balls.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 110,
+            vy: (Math.random() - 0.5) * 110,
+            radius,
+            color: palette[Math.floor(Math.random() * palette.length)]
+          });
+        }
+      }
+
+      function resolveStarCollision(ball) {
+        const dx = ball.x - center.x;
+        const dy = ball.y - center.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist === 0) {
+          return;
+        }
+
+        const thetaWorld = Math.atan2(dy, dx);
+        const thetaLocal = normalizeAngle(thetaWorld - star.rotation);
+        const boundaryRadius = getRadius(thetaLocal);
+        const allowedRadius = Math.max(boundaryRadius - ball.radius, 0);
+
+        if (dist > allowedRadius) {
+          const R = boundaryRadius;
+          const RPrime = getRadiusDerivative(thetaLocal);
+
+          const tangentLocalX = RPrime * Math.cos(thetaLocal) - R * Math.sin(thetaLocal);
+          const tangentLocalY = RPrime * Math.sin(thetaLocal) + R * Math.cos(thetaLocal);
+          let normalLocalX = tangentLocalY;
+          let normalLocalY = -tangentLocalX;
+          const normalLength = Math.hypot(normalLocalX, normalLocalY) || 1;
+          normalLocalX /= normalLength;
+          normalLocalY /= normalLength;
+
+          const cosRot = Math.cos(star.rotation);
+          const sinRot = Math.sin(star.rotation);
+          const normalX = normalLocalX * cosRot - normalLocalY * sinRot;
+          const normalY = normalLocalX * sinRot + normalLocalY * cosRot;
+
+          const vn = ball.vx * normalX + ball.vy * normalY;
+          if (vn > 0) {
+            ball.vx -= (1 + restitution) * vn * normalX;
+            ball.vy -= (1 + restitution) * vn * normalY;
+          }
+
+          const clampRadius = allowedRadius;
+          const correctedAngle = thetaLocal + star.rotation;
+          ball.x = center.x + clampRadius * Math.cos(correctedAngle);
+          ball.y = center.y + clampRadius * Math.sin(correctedAngle);
+        }
+      }
+
+      function updatePhysics(dt) {
+        for (const ball of balls) {
+          ball.vy += gravity * dt;
+          ball.vx *= airDrag;
+          ball.vy *= airDrag;
+          ball.x += ball.vx * dt;
+          ball.y += ball.vy * dt;
+          resolveStarCollision(ball);
+        }
+      }
+
+      function buildStarPath() {
+        const path = new Path2D();
+        const segments = 240;
+        for (let i = 0; i <= segments; i++) {
+          const theta = (i / segments) * TWO_PI;
+          const radius = getRadius(theta);
+          const x = radius * Math.cos(theta);
+          const y = radius * Math.sin(theta);
+          if (i === 0) {
+            path.moveTo(x, y);
+          } else {
+            path.lineTo(x, y);
+          }
+        }
+        path.closePath();
+        return path;
+      }
+
+      function drawBackground() {
+        ctx.clearRect(0, 0, logicalSize, logicalSize);
+        const gradient = ctx.createRadialGradient(center.x, center.y, star.outerRadius * 0.15, center.x, center.y, star.outerRadius * 1.6);
+        gradient.addColorStop(0, '#0f1b34');
+        gradient.addColorStop(1, '#05070f');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, logicalSize, logicalSize);
+      }
+
+      function drawStar() {
+        ctx.save();
+        ctx.translate(center.x, center.y);
+        ctx.rotate(star.rotation);
+        const starPath = buildStarPath();
+
+        const fillGradient = ctx.createRadialGradient(0, 0, star.outerRadius * 0.08, 0, 0, star.outerRadius);
+        fillGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+        fillGradient.addColorStop(0.55, 'rgba(255, 214, 0, 0.16)');
+        fillGradient.addColorStop(1, 'rgba(255, 140, 0, 0.05)');
+
+        ctx.fillStyle = fillGradient;
+        ctx.fill(starPath);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(255, 214, 0, 0.65)';
+        ctx.stroke(starPath);
+        ctx.restore();
+      }
+
+      function drawBalls() {
+        for (const ball of balls) {
+          const gradient = ctx.createRadialGradient(
+            ball.x - ball.radius * 0.35,
+            ball.y - ball.radius * 0.5,
+            ball.radius * 0.2,
+            ball.x,
+            ball.y,
+            ball.radius
+          );
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+          gradient.addColorStop(0.25, ball.color);
+          gradient.addColorStop(1, 'rgba(10, 16, 32, 0.3)');
+
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(ball.x, ball.y, ball.radius, 0, TWO_PI);
+          ctx.fill();
+        }
+      }
+
+      function animate(now) {
+        const delta = Math.min((now - lastTime) / 1000, 0.04);
+        lastTime = now;
+
+        star.rotation = (star.rotation + star.rotationSpeed * delta) % TWO_PI;
+        updatePhysics(delta);
+
+        drawBackground();
+        drawStar();
+        drawBalls();
+
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

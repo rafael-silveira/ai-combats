@@ -82,6 +82,23 @@ Efeito visual interativo que gera explosões/partículas ao clicar na tela. Impl
 - **[Copilot Swe](./click-explosion/copilot%20swe/index.html)**
   - Implementação usando Copilot Swe
 
+---
+
+### Rotating Star With Balls Inside
+
+Animação/efeito visual onde uma estrela rotaciona com bolas internas, demonstrando física/visualizações. Implementações por diferentes modelos de IA.
+
+#### Implementações:
+
+- **[Claude Sonnet 4.5](./rotating-star-with-balls-inside/claude%20sonnet%204.5/index.html)**
+  - Implementação usando Claude Sonnet 4.5
+
+- **[Copilot Swe](./rotating-star-with-balls-inside/copilot%20swe/index.html)**
+  - Implementação usando Copilot Swe
+
+- **[GPT 5 Codex](./rotating-star-with-balls-inside/gpt%205%20codex/index.html)**
+  - Implementação usando GPT 5 Codex
+
 ## 📝 Notas
 
 - Todos os projetos são independentes e podem ser executados separadamente

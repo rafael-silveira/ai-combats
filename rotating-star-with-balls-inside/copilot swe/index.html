@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estrela Rotativa com Bolas - Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="scene"></canvas>
+      <div class="controls">
+        <label>Vel. rotação: <input id="rotationSpeed" type="range" min="-3" max="3" step="0.01" value="0.6"></label>
+        <label>Gravidade: <input id="gravity" type="range" min="0" max="2" step="0.01" value="0.4"></label>
+        <button id="reset">Reset</button>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
